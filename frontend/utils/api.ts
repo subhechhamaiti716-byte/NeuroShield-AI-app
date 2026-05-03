@@ -1,8 +1,8 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-// Set this to your actual FastAPI backend URL via .env or hardcoded fallback
-export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
+// Set this to your actual FastAPI backend URL
+export const API_URL = 'https://neuroshield-ai-app.onrender.com';
 
 const api = axios.create({
   baseURL: API_URL,
