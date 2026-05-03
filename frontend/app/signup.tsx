@@ -35,8 +35,18 @@ export default function SignupScreen() {
         { text: 'OK', onPress: () => router.replace('/login') }
       ]);
     } catch (error: any) {
-      console.error('Signup error:', error);
-      Alert.alert('Signup Failed', error.response?.data?.detail || 'An error occurred during registration.');
+      console.error('Signup error:', error.response?.data || error.message);
+      const errorDetail = error.response?.data?.detail;
+      let message = 'An error occurred during registration.';
+      
+      if (Array.isArray(errorDetail)) {
+        // Handle Pydantic validation errors
+        message = errorDetail.map((err: any) => `${err.loc[1]}: ${err.msg}`).join('\n');
+      } else if (typeof errorDetail === 'string') {
+        message = errorDetail;
+      }
+
+      Alert.alert('Signup Failed', message);
     } finally {
       setLoading(false);
     }
