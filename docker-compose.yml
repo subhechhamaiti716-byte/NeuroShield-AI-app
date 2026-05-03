@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: neuroshield-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/uploads:/app/uploads
+    environment:
+      - ADMIN_EMAIL=admin@neuroshield.ai
+      - ADMIN_PASSWORD=shield_admin_2024
+    restart: always
+
+  # Note: Frontend (Expo/React Native) is usually run via Expo CLI locally 
+  # or built for mobile devices, so we typically don't dockerize it for dev.
