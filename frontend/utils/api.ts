@@ -1,6 +1,5 @@
-import { Platform } from 'react-native';
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from './storage';
 
 // Set this to your actual FastAPI backend URL
 export const API_URL = 'https://neuroshield-ai-app.onrender.com';
@@ -12,17 +11,9 @@ const api = axios.create({
   },
 });
 
-// Helper to get token safely on Web and Native
-const getToken = async () => {
-  if (Platform.OS === 'web') {
-    return localStorage.getItem('userToken');
-  }
-  return await SecureStore.getItemAsync('userToken');
-};
-
 // Interceptor to automatically add JWT token to every request
 api.interceptors.request.use(async (config) => {
-  const token = await getToken();
+  const token = await storage.getItem('userToken');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
