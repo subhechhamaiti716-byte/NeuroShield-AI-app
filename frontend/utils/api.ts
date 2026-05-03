@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
@@ -11,9 +12,17 @@ const api = axios.create({
   },
 });
 
+// Helper to get token safely on Web and Native
+const getToken = async () => {
+  if (Platform.OS === 'web') {
+    return localStorage.getItem('userToken');
+  }
+  return await SecureStore.getItemAsync('userToken');
+};
+
 // Interceptor to automatically add JWT token to every request
 api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync('userToken');
+  const token = await getToken();
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }

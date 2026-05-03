@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import api from '../utils/api';
 import { router } from 'expo-router';
@@ -31,7 +32,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function loadStoredAuth() {
     try {
-      const storedToken = await SecureStore.getItemAsync('userToken');
+      let storedToken = null;
+      if (Platform.OS === 'web') {
+        storedToken = localStorage.getItem('userToken');
+      } else {
+        storedToken = await SecureStore.getItemAsync('userToken');
+      }
+      
       if (storedToken) {
         setToken(storedToken);
         await fetchUserProfile(storedToken);
@@ -57,14 +64,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function login(authToken: string) {
     setToken(authToken);
-    await SecureStore.setItemAsync('userToken', authToken);
+    if (Platform.OS === 'web') {
+      localStorage.setItem('userToken', authToken);
+    } else {
+      await SecureStore.setItemAsync('userToken', authToken);
+    }
     await fetchUserProfile(authToken);
   }
 
   async function logout() {
     setToken(null);
     setUser(null);
-    await SecureStore.deleteItemAsync('userToken');
+    if (Platform.OS === 'web') {
+      localStorage.removeItem('userToken');
+    } else {
+      await SecureStore.deleteItemAsync('userToken');
+    }
     router.replace('/login');
   }
 
