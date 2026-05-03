@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
-from typing import List, Optional
+import time
+from typing import List, Optional, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request, BackgroundTasks
 import shutil
@@ -109,6 +110,10 @@ def check_transaction(
     else:
         message = f"✅ Transaction of ${payload.amount:.2f} looks safe. Risk score: {fraud_score:.0%}."
 
+    # Invalidate analytics cache
+    if current_user.id in ANALYTICS_CACHE:
+        del ANALYTICS_CACHE[current_user.id]
+
     return TransactionCheckResponse(
         id=tx.id,
         is_fraud=is_fraud,
@@ -206,6 +211,10 @@ def submit_feedback(
     
     logger.info("User feedback received: Transaction %s, Feedback %s", tx_id, payload.feedback)
     
+    # Invalidate analytics cache
+    if current_user.id in ANALYTICS_CACHE:
+        del ANALYTICS_CACHE[current_user.id]
+
     tx.group = _group_label(tx.created_at)
     return tx
 
@@ -253,17 +262,28 @@ async def upload_receipt(
     return tx
 
 
-# ─── Analytics summary ─────────────────────────────────────────
+# --- In-Memory Cache for Analytics ---
+ANALYTICS_CACHE = {}  # {user_id: {"data": AnalyticsResponse, "timestamp": float}}
+CACHE_TTL = 300       # 5 minutes
 
 @router.get(
     "/analytics/summary",
     response_model=AnalyticsResponse,
-    summary="Get analytics summary for current user",
+    summary="Get analytics summary for current user (Cached)",
 )
 def analytics_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    # Check cache
+    user_id = current_user.id
+    now = time.time()
+    if user_id in ANALYTICS_CACHE:
+        cache_entry = ANALYTICS_CACHE[user_id]
+        if now - cache_entry["timestamp"] < CACHE_TTL:
+            logger.info("Serving analytics from cache for User %s", user_id)
+            return cache_entry["data"]
+
     txs = db.query(Transaction).filter(Transaction.user_id == current_user.id).all()
 
     if not txs:
@@ -289,7 +309,7 @@ def analytics_summary(
         if t.amount < 0:
             cat_map[t.category] = cat_map.get(t.category, 0) + abs(t.amount)
 
-    return AnalyticsResponse(
+    response = AnalyticsResponse(
         total_transactions=len(txs),
         total_spent=round(total_spent, 2),
         total_received=round(total_received, 2),
@@ -298,6 +318,10 @@ def analytics_summary(
         risk_score=round(avg_risk, 4),
         category_breakdown={k: round(v, 2) for k, v in cat_map.items()},
     )
+
+    # Update cache
+    ANALYTICS_CACHE[user_id] = {"data": response, "timestamp": now}
+    return response
 
 
 # ─── Model Retraining (Admin) ─────────────────────────────────
