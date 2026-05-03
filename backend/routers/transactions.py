@@ -133,13 +133,22 @@ def check_transaction(
 def list_transactions(
     skip: int = 0,
     limit: int = 50,
+    q: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    query = db.query(Transaction).filter(Transaction.user_id == current_user.id)
+
+    if q:
+        search_filter = f"%{q}%"
+        query = query.filter(
+            (Transaction.merchant.ilike(search_filter)) | 
+            (Transaction.category.ilike(search_filter)) |
+            (Transaction.note.ilike(search_filter))
+        )
+
     txs = (
-        db.query(Transaction)
-        .filter(Transaction.user_id == current_user.id)
-        .order_by(Transaction.created_at.desc())
+        query.order_by(Transaction.created_at.desc())
         .offset(skip)
         .limit(limit)
         .all()

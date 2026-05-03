@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, StatusBar, ActivityIndicator, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import api from '../../utils/api';
@@ -16,15 +16,19 @@ export default function HistoryScreen() {
   const [filter, setFilter] = useState('All');
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [searchQuery]);
 
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/transactions');
+      const response = await api.get('/transactions', {
+        params: { q: searchQuery }
+      });
       setTransactions(response.data);
     } catch (error) {
       console.log('Using mock history data, API unreachable:', error);
@@ -53,9 +57,28 @@ export default function HistoryScreen() {
         <TouchableOpacity style={styles.backBtn}>
           <Ionicons name="chevron-back" size={24} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>History</Text>
-        <TouchableOpacity style={styles.searchBtn}>
-          <Ionicons name="search" size={24} color={Colors.text} />
+        
+        {showSearch ? (
+          <View style={styles.searchInputContainer}>
+            <Ionicons name="search" size={18} color={Colors.textMuted} />
+            <TextInput 
+              style={styles.searchInput}
+              placeholder="Search merchants..."
+              placeholderTextColor={Colors.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+            />
+            <TouchableOpacity onPress={() => {setShowSearch(false); setSearchQuery('');}}>
+              <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={styles.headerTitle}>History</Text>
+        )}
+
+        <TouchableOpacity style={styles.searchBtn} onPress={() => setShowSearch(!showSearch)}>
+          <Ionicons name={showSearch ? "close" : "search"} size={24} color={Colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -161,6 +184,25 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  searchInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginHorizontal: 12,
+    height: 40,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    color: Colors.text,
+    fontSize: 14,
+    marginLeft: 8,
+    padding: 0,
   },
   searchBtn: {
     padding: 8,
