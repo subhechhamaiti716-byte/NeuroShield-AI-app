@@ -13,7 +13,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
     transactions = relationship("Transaction", back_populates="owner", cascade="all, delete-orphan")
 
@@ -22,7 +22,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
     # Core transaction fields
     amount = Column(Float, nullable=False)
@@ -46,6 +46,6 @@ class Transaction(Base):
     status = Column(String, default="Completed")  # "Completed" | "Action Required"
     group = Column(String, default="TODAY")        # "TODAY" | "YESTERDAY" | date string
 
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
     owner = relationship("User", back_populates="transactions")

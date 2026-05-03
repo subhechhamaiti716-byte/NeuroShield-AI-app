@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
@@ -87,7 +88,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow the React Native Expo dev client and any deployed frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],          # tighten in production
@@ -95,6 +95,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Gzip compression for faster network transfer
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Mount static files for receipt images
 os.makedirs("uploads/receipts", exist_ok=True)
