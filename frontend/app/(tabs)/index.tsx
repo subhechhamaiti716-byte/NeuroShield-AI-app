@@ -92,17 +92,38 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        <TouchableOpacity onPress={() => router.push('/add-transaction')} activeOpacity={0.8}>
-          <LinearGradient
-            colors={Colors.primaryGradient}
-            style={styles.addBtn}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 32 }}>
+          <TouchableOpacity 
+            style={[styles.addBtn, { flex: 1, marginBottom: 0 }]} 
+            onPress={() => router.push('/add-transaction')} 
+            activeOpacity={0.8}
           >
-            <Ionicons name="add" size={24} color={Colors.text} />
-            <Text style={styles.addBtnText}>Add Transaction</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient
+              colors={Colors.primaryGradient}
+              style={styles.addBtnGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Ionicons name="add" size={24} color={Colors.text} />
+              <Text style={styles.addBtnText}>Add Transaction</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.linkBankBtn, { flex: 1 }]} 
+            onPress={async () => {
+              try {
+                const response = await api.post('/banking/create_link_token');
+                Alert.alert("Link Bank", "Connecting to Secure Bank API (Plaid)... \nToken: " + response.data.link_token);
+              } catch (e) {
+                Alert.alert("Error", "Failed to initialize bank link.");
+              }
+            }}
+          >
+            <Ionicons name="card-outline" size={24} color={Colors.primary} />
+            <Text style={styles.linkBankBtnText}>Link Bank</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Transactions</Text>
@@ -248,16 +269,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addBtn: {
+    height: 56,
+    borderRadius: 16,
+  },
+  addBtnGradient: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 16,
+  },
+  addBtnText: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  linkBankBtn: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     height: 56,
     borderRadius: 16,
-    marginBottom: 32,
+    backgroundColor: 'rgba(0, 209, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
-  addBtnText: {
-    color: Colors.text,
-    fontSize: 18,
+  linkBankBtnText: {
+    color: Colors.primary,
+    fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
   },

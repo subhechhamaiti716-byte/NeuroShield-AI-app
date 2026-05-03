@@ -144,9 +144,11 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int):
 
 # ─── Routers ──────────────────────────────────────────────────
 
+from routers import banking as banking_router
 app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(tx_router.router)
+app.include_router(banking_router.router)
 app.include_router(monitoring_router.router)
 
 # ─── Enterprise Integrations ──────────────────────────────────
