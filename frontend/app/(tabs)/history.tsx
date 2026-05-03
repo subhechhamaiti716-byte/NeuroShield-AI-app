@@ -104,7 +104,12 @@ export default function HistoryScreen() {
                   </View>
                   
                   <View style={styles.txDetails}>
-                    <Text style={styles.txMerchant}>{tx.merchant}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={styles.txMerchant}>{tx.merchant}</Text>
+                      {tx.receipt_image && (
+                        <Ionicons name="receipt-outline" size={14} color={Colors.primary} style={{ marginLeft: 6 }} />
+                      )}
+                    </View>
                     <Text style={!tx.safe ? styles.txCategorySuspicious : styles.txCategory}>
                       {tx.category} • {tx.time || tx.date}
                     </Text>
