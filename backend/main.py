@@ -24,6 +24,7 @@ from auth import hash_password
 from routers import auth as auth_router
 from routers import users as users_router
 from routers import transactions as tx_router
+from routers import monitoring as monitoring_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("neuroshield")
@@ -146,6 +147,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int):
 app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(tx_router.router)
+app.include_router(monitoring_router.router)
 
 # ─── Enterprise Integrations ──────────────────────────────────
 
