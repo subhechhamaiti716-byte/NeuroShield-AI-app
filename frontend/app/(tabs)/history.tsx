@@ -144,7 +144,7 @@ export default function HistoryScreen() {
                       tx.amount > 0 && styles.txAmountPositive,
                       !tx.safe && styles.txAmountSuspicious
                     ]}>
-                      {tx.amount > 0 ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
+                      {tx.amount > 0 ? '+' : ''}₹{Math.abs(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </Text>
                     {!tx.safe && (
                       <TouchableOpacity style={styles.resolveBtn}>

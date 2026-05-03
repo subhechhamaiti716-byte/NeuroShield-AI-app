@@ -78,7 +78,7 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.balanceContainer}>
           <Text style={styles.balanceLabel}>Total Protected Balance</Text>
-          <Text style={styles.balanceAmount}>${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+          <Text style={styles.balanceAmount}>₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
           <View style={[styles.riskBadge, riskLabel !== 'LOW' && { backgroundColor: 'rgba(255, 59, 48, 0.15)' }]}>
             <Ionicons 
               name="shield-checkmark" 
@@ -145,7 +145,7 @@ export default function DashboardScreen() {
                   tx.amount > 0 && styles.txAmountPositive,
                   !tx.safe && styles.txAmountSuspicious
                 ]}>
-                  {tx.amount > 0 ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
+                  {tx.amount > 0 ? '+' : ''}₹{Math.abs(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </Text>
                 <Text style={styles.txDate}>{(tx.time || tx.date || '').split(',')[0]}</Text>
               </View>

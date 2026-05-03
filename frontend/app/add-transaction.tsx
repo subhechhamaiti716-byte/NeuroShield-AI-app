@@ -163,25 +163,39 @@ export default function AddTransactionScreen() {
         <View style={styles.amountContainer}>
           <Text style={styles.amountLabel}>Auto-Detected Amount</Text>
           <View style={styles.amountInputWrapper}>
-            <Text style={styles.currencySymbol}>$</Text>
+            <Text style={styles.currencySymbol}>₹</Text>
             <Text style={styles.amountText}>
-              {amount ? amount : '---'}
+              {amount ? amount : '0.00'}
             </Text>
           </View>
           
           {!amount ? (
             <TouchableOpacity style={styles.scanBtnAction} onPress={() => {
-              // Simulate scanning a merchant terminal (QR or NFC)
-              const detectedAmount = (Math.random() > 0.5 ? 2450.00 : 15.50).toFixed(2);
+              // Simulate fetching from Bank API
+              const detectedAmount = (Math.random() > 0.5 ? 45000.00 : 250.00).toFixed(2);
               setAmount(detectedAmount);
-              setCategory(detectedAmount > 100 ? 'Electronics' : 'Food & Drink');
+              setCategory(detectedAmount > 10000 ? 'Electronics' : 'Food & Drink');
             }}>
-              <Ionicons name="scan" size={20} color={Colors.background} style={{ marginRight: 8 }} />
-              <Text style={styles.scanBtnText}>Scan Payment Terminal</Text>
+              <Ionicons name="sync-circle" size={20} color={Colors.background} style={{ marginRight: 8 }} />
+              <Text style={styles.scanBtnText}>Sync with Bank Account</Text>
             </TouchableOpacity>
           ) : (
-            <View style={styles.currencyBadge}>
-              <Text style={styles.currencyBadgeText}>USD - US Dollar (Verified)</Text>
+            <View style={{ alignItems: 'center' }}>
+              <View style={styles.currencyBadge}>
+                <Text style={styles.currencyBadgeText}>INR - Indian Rupee (Live)</Text>
+              </View>
+              
+              {/* Risk Preview Section */}
+              <View style={[styles.riskPreview, { backgroundColor: parseFloat(amount) > 10000 ? 'rgba(255, 59, 48, 0.1)' : 'rgba(52, 199, 89, 0.1)' }]}>
+                <Ionicons 
+                  name={parseFloat(amount) > 10000 ? "warning" : "shield-checkmark"} 
+                  size={16} 
+                  color={parseFloat(amount) > 10000 ? Colors.secondary : Colors.success} 
+                />
+                <Text style={[styles.riskPreviewText, { color: parseFloat(amount) > 10000 ? Colors.secondary : Colors.success }]}>
+                  AI RISK ASSESSMENT: {parseFloat(amount) > 10000 ? 'HIGH RISK' : 'SECURE'}
+                </Text>
+              </View>
             </View>
           )}
         </View>
@@ -337,6 +351,21 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 48,
     fontWeight: 'bold',
+  },
+  riskPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  riskPreviewText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginLeft: 6,
   },
   scanBtnAction: {
     flexDirection: 'row',

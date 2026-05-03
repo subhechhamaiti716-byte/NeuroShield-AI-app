@@ -82,7 +82,7 @@ export default function AnalyticsScreen() {
 
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Total Spent</Text>
-            <Text style={styles.statValue}>${(data?.total_spent || 0).toLocaleString()}</Text>
+            <Text style={styles.statValue}>₹{(data?.total_spent || 0).toLocaleString('en-IN')}</Text>
             <View style={[styles.statBadge, { backgroundColor: 'rgba(52, 199, 89, 0.1)' }]}>
               <Text style={[styles.statBadgeText, { color: Colors.success }]}>
                 Risk: {data && data.risk_score < 0.3 ? 'Low' : data && data.risk_score < 0.6 ? 'Medium' : 'High'}
@@ -155,7 +155,7 @@ export default function AnalyticsScreen() {
             <View key={name} style={styles.categoryRow}>
               <View style={styles.categoryInfo}>
                 <Text style={styles.categoryName}>{name}</Text>
-                <Text style={styles.categoryAmount}>${amount.toLocaleString()}</Text>
+                <Text style={styles.categoryAmount}>₹{amount.toLocaleString('en-IN')}</Text>
               </View>
               <View style={styles.progressBarBg}>
                 <View 
